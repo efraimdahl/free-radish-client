@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if (room == roomCode) {
             switch(message.messageType) {
             case 'ERROR_INVALID_ROOM':
+                console.log("Invalid Room");
+                console.log(message);
                 document.querySelector('#form-roomcode-invalid').classList.remove('hidden');
             break;
             case 'ERROR_NAME_TAKEN':

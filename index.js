@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 const server = require('http').createServer();
 const app = require('./http-server');
 
-const port = process.env.PORT || 8524;
+const port = process.env.PORT || 3000;
 
 // Mount our express HTTP router into our server
 server.on('request', app);
@@ -39,10 +39,12 @@ wss.on('connection', (ws) => {
     ws.room = '';
     ws.nick = '';
     ws.inGame = false;
+    console.log("Websocket connected");
     ws.on('pong', heartbeat);
 
     ws.on('message', (message) => {
         var radishMsg = JSON.parse(message);
+        console.log(radishMsg);
         ws.room = radishMsg.roomCode.toLowerCase();
         if (radishMsg.nickname) {
             ws.nick = radishMsg.nickname.toLowerCase();
@@ -53,7 +55,8 @@ wss.on('connection', (ws) => {
             roomClients.set(ws.room, ws);
             const response = {
                 messageType: 'ROOM_CREATED_SUCCESS',
-                roomCode: ws.room
+                roomCode: ws.room,
+                method: "server_back"
             }
             ws.send(JSON.stringify(response));
         }
