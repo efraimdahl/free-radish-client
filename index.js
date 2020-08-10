@@ -1,5 +1,4 @@
 'use strict';
-
 const express = require('express');
 const WebSocket = require('ws');
 const server = require('http').createServer();
@@ -7,12 +6,13 @@ const app = require('./http-server');
 
 const port = process.env.PORT || 3000;
 
+
 // Mount our express HTTP router into our server
 server.on('request', app);
 
 // Rooms is a map of room codes to a list of players in that room
 const rooms = new Map();
-// RoomClients is a map of room codes to the room client itself
+// RoomClients is a map of room codes to the room clients (hosts, ie unity instances) itself
 const roomClients = new Map();
 
 // TODO adding a room manually until game-side exists
@@ -30,6 +30,11 @@ function leaveRoom(ws) {
         const players = rooms.get(ws.room);
         players.splice(players.indexOf(ws.nick), 1);
         rooms.set(ws.room, players);
+        //if the player was the last in room:
+        if (players.length<1){
+            console.log("Room is empty");
+            
+        }
     }
 }
 
@@ -43,7 +48,18 @@ wss.on('connection', (ws) => {
     ws.on('pong', heartbeat);
 
     ws.on('message', (message) => {
+        console.log(message);
+        try{
         var radishMsg = JSON.parse(message);
+        } catch(e){
+            const response = {
+                messageType: 'UFHH',
+                roomCode: 'noRoom',
+                method: "big_ufh"    
+            }
+            ws.send(JSON.stringify(response));
+            return;
+        }
         console.log(radishMsg);
         ws.room = radishMsg.roomCode.toLowerCase();
         if (radishMsg.nickname) {
@@ -51,11 +67,17 @@ wss.on('connection', (ws) => {
         }
         switch (radishMsg.messageType) {
         case 'CREATE_ROOM_REQUEST': {
-            rooms.set(ws.room, []);
-            roomClients.set(ws.room, ws);
+            let id = makeid(4);
+            while (rooms.has(id)) {
+                // Create random id's untill a new one is found
+                id = makeid(4);
+                }
+            console.log("Made room id " + id);
+            rooms.set(id, []);
+            roomClients.set(id, ws);
             const response = {
                 messageType: 'ROOM_CREATED_SUCCESS',
-                roomCode: ws.room,
+                roomCode: id,
                 method: "server_back"
             }
             ws.send(JSON.stringify(response));
@@ -67,8 +89,8 @@ wss.on('connection', (ws) => {
                 const response = {
                     messageType: 'ERROR_INVALID_ROOM',
                     roomCode: ws.room,
-                    nickname: ws.nick
-                }
+                    nickname: ws.nick,
+                   }
                 ws.send(JSON.stringify(response));
             } else {
                 // Connected successfully
@@ -92,21 +114,25 @@ wss.on('connection', (ws) => {
                         messageType: 'PLAYER_JOINED',
                         roomCode: ws.room,
                         nickname: ws.nick,
-                        vip: players.length == 1
+                        playerNum: rooms.get(ws.room).length,
+                        method: 'player_joined',
                     }
-                    broadcast(JSON.stringify(response));
+                    ws.send(JSON.stringify(response))
+                    sendToHost(response,ws.room);
                 }
             }
         }
         break;
         case 'DISCONNECTED': {
+            console.log("Disconnected");
             leaveRoom(ws);
         }
         break;
-        case 'START_GAME_REQUEST': {
+        case 'START_GAME': {
             const response = {
                 messageType: 'GAME_STARTED',
-                roomCode: ws.room
+                roomCode: ws.room,
+                method: "start_game",
             }
             broadcast(JSON.stringify(response));
         }
@@ -126,6 +152,16 @@ wss.on('connection', (ws) => {
             const playerToGame = {...radishMsg};
             playerToGame.messageType = "PLAYER_TO_GAME";
             target.send(JSON.stringify(playerToGame));
+        }
+        break;
+        case 'PLAYER_INPUT': {
+            // A player is sending a message to the game
+            const target = roomClients.get(ws.room);
+            target.send(message);
+        }
+        break;
+        case 'GAME_LOADED': {
+            broadcast(message);
         }
         break;
         case 'SEND_BROADCAST': {
@@ -149,13 +185,19 @@ const interval = setInterval(function ping() {
   });
 }, 1000);
 
+function sendToHost(message,room){
+    const target = roomClients.get(room);
+    target.send(JSON.stringify(message));
+}
+
+    
+    
 function broadcast(message) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(message);
         }
     });
-
 }
 
 function findPlayerInRoom(room, nickname) {
@@ -166,5 +208,17 @@ function findPlayerInRoom(room, nickname) {
         return players.find((item) => item.nick == nickname);
     }
 }
+
+
+//Helper functions
+function makeid(length) {
+    var result           = '';
+    var characters       = 'abcdefghijklmnopqrstuvwxyz';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 
 server.listen(port, () => console.log(`Free Radish is listening on port ${port}`));

@@ -1,10 +1,35 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:300);
+
+html, body {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+
 body {
     font-family: 'Varela Round', sans-serif;
     text-align: center;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    width:100%;
+    height:100%;
+    position:relative;
 }
+
+@media only screen and (orientation:portrait){
+  
+  body {
+
+    height: 100vw;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+   }
+ 
+ }
 button {
     font-family: 'Varela Round', sans-serif;
     align-self: stretch;
@@ -55,6 +80,8 @@ button {
     background-color: #066653;
     margin: 20px 10px;
 }
+
+
 button.disabled {
     pointer-events: none;
     opacity: 0.5;
@@ -134,3 +161,103 @@ button.disabled {
     margin: 10px 0;
   }
 }
+
+html {
+  background: radial-gradient(#000, #111); 
+  height: 100%;
+}
+
+.keys {
+  font-family: 'Lato', sans-serif;    
+  text-align: center;
+  align-content: center;
+  margin: auto;
+}
+
+.arr {
+  cursor: pointer;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  line-height: 100px;
+  background: grey;
+  color: white;
+  font-size: 50px;
+  border-right: 10px solid darken(grey, 20);
+  border-bottom: 10px solid darken(grey, 20);
+  border-left: 10px solid darken(grey, 15);
+  border-top: 10px solid darken(grey, 10);  
+  display: inline-block;
+  margin: 5px;
+  transition: all .05s linear;
+}
+
+.notouch{
+  touch-action: manipulation;
+}
+
+
+#header{
+  -webkit-user-select: none;
+  cursor:auto;
+}
+
+
+#main {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  margin: auto;
+  width: 100vw;
+}
+
+#wrapper {
+  border: 1px solid black;
+  width: 70%;
+  height: 70%;
+  max-width: 200px;
+  max-height: 200px;
+}
+#bang-bang{
+  -webkit-user-select: none;
+  cursor: pointer;
+  grid-row-start:2;
+  grid-row-end:3;
+  grid-column-start: 2;
+  grid-column-end: 3;
+  transition:0.5s;
+
+}
+
+#bang-bang:hover{
+  color:black;
+  transition:0.2s
+}
+#bang-bang:active{
+  background-color:black;
+  padding:18px;
+  transition:0.5s;
+}
+
+
+.joystick {
+  background-color: blue;
+  border-radius: 100%;
+  cursor: pointer;
+  height: 100%;
+  user-select: none;
+  width: 100%;
+}
+
+.grid {
+  position: absolute;
+  height: 100vh;
+  width:100vw;
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+  grid-template-rows: 25% 50% 25%;
+  grid-gap: 1em;
+  align-items: stretch;
+}
+

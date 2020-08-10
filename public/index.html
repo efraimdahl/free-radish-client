@@ -3,14 +3,12 @@
 <html lang="en">
     <head>
       <meta charset="utf-8">
-      <title>Free Radish Games</title>
+      <title>Replant The Old World</title>
       <link rel="stylesheet" href="css/index.css">
-      <link href="https://fonts.googleapis.com/css?family=Varela+Round&display=swap" rel="stylesheet">
-      <script src="https://kit.fontawesome.com/3be0e7a99d.js" crossorigin="anonymous"></script>
       <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 
-    <body>
+    <body scroll="no" style="overflow: hidden">
         <div id="room-code-form">
             <label for="roomcode">Room Code</label>
             <input type="text" id="form-roomcode" maxlength="5"/>
@@ -19,7 +17,8 @@
             <input type="text" id="form-name" maxlength="10"/>
             <p id="form-name-invalid" class="form-error hidden">Name already taken</p>
             <button id="join-game-button">Join Game</button>
-            <script src="js/main.js"></script>
+            <script type="module" src="js/virtualjoystick.js"></script>
+            <script src="js/main.js" type="module"></script>
         </div>
 
         <div id="game-content">
