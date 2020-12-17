@@ -57,19 +57,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
             fireing = true;
             sendInput('fire',null)
         });
-        ref.addEventListener('touchstart', function () {
-            fireing = true;
-            sendInput('fire',null)
-        });
     
         ref.addEventListener('mousemove', function () {
-            if (fireing) {
-                fireing = false
-                sendInput('fireup',null)
-            }
-        })
-
-        ref.addEventListener('touchmove', function () {
             if (fireing) {
                 fireing = false
                 sendInput('fireup',null)
@@ -82,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 sendInput('fireup',null)
             }
         })
-        ref.addEventListener('touchend', function () {
+        ref.addEventListener('touchstart', function () {
             if (fireing) {
                 fireing = false
                 sendInput('fireup',null)
@@ -149,6 +138,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
             dragStart = null;
             currentPos = { x: 0, y: 0 };
             sendInput('joyoff',null);
+            throttleFunction(sendInput,'joyoff',null,200);
         }
     
         parent.appendChild(stick);
